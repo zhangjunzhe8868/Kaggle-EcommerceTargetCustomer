@@ -1,0 +1,47 @@
+There are four parts to build the classification model and the clustering model: load and data exploration, data cleaning and feature engineering, baseline classification model building, hyperparameter tuning and model evaluation for classification, and clustering model and model evaluation. 
+
+## load and data exploration
+1. Data type includes numerical and nominal (multiclass-categorical, and binary-categorical).
+2. Some features have too many '?' and 'Not in universe' as the NA value, such as 'fill inc questionnaire for veteran's admin'.
+3. Some features are highly unevenly distributed, such as 'capital gains', in which the major class takes more than 80% proportion and each minor class doesn’t take more than 5% proportion. 
+4. The 'label' is imbalanced distributed (major class is '<50000', taking about 94%, minor class is '>50000', taking about 6%).
+5. There is no difference in 'label' between 1994 and 1995 and the data for each year takes about 50% proportion.
+
+
+## data cleaning and feature engineering
+1. dropped the 'instance weight' and 'year'. 
+2. '?' was converted to 'Not in universe' for 'family members under 18', 'migration code-change in msa', 'migration code-change in reg', 'migration code-move within reg', 'major occupation code', 'class of worker', 'country of birth father', 'country of birth mother', 'country of birth self'.
+3. 'education' has too many classes, which leads some minor classes to take less than 5% proportion. This feature was converted to a new feature, which has more generic classes based on common knowledge.
+4. 'capital','capital gains','capital losses','dividends from stocks' were converted to one feature 'invest'.
+5. There are two modes to deal with the highly unevenly distributed features: 
+   The feature that one class takes more than 90% proportion, this feature was removed since the variance of this feature is too small.
+   The feature that one class takes between 80% to 90% proportion, this feature was converted to a binary type (1:the major class, 0:the rest classes).
+For the first mode, dropped the "fill inc questionnaire for veteran's admin",'reason for unemployment','enroll in edu inst last wk','state of previous residence','region of previous residence', 'migration prev res in sunbelt','member of a labor union'.
+For the second mode, 'citizenship','hispanic origin','race','invest','wage per hour' were converted to binary type.
+6. 'country of birth father', 'country of birth mother', 'country of birth self' were converted to one feature 'country of birth'.
+7. dropped the 'detailed household and family stat','migration code-move within reg','detailed industry recode','detailed occupation recode'
+since these were duplicated to other features.
+8. dropped 'migration code-change in msa','migration code-change in reg','live in this house 1 year ago','citizenship_cov', 'wage', 'country of birth' since these features didn't show a significant difference in '<50000' class and '>50000' class.
+9. numerical features were normalized and nominal features were one-hot encoded.
+10. A Pearson Correlation matrix was used to check the correlation of numerical features. If the coefficient of correlation of a pair of features is greater than 0.6 or less than -0.6, one feature in this pair was removed since the other can represent the deleted one. The general rule is to keep the feature that has more variance than others.
+
+
+## Baseline classification model building
+1. 96 features were selected as the input for the classification models (some of them were one-hot encoded).
+2. The data was split into 75% and 25% for training and testing.
+3. During the baseline model building, random forest was used to classify the imbalanced data with the class_weight parameter to balance the error measure of the loss function.
+
+
+## Hyparameter tuning and model evaluation for classification
+1. There is another way to deal with the imbalanced data, which is using RandomUnderSampler to undersample the major class or using RandomOverSampler to oversample the minor class.  
+2. A grid search was used to find the best parameter (number of trees) for random forest model with the undersampled and oversampled data.
+3. Logistic regression was also used as the classification model with the undersampled and oversampled data. 
+4. AUC, total accuracy, precision, false alarm rate, and ROC were used to evaluate the model's performance. 
+5. Both models output the feature importance.
+
+
+## Clustering model and model evaluation
+1. Based on the feature selection in the data cleaning and feature engineering, 96 features were selected for the clustering.
+2. K-means method was used for the clustering (DBscan is the other way) and the 'elbow' method was used to define the k (silhouette score is the other way).
+3. 3 clusters were used in k-means.
+4. PCA was used to evaluate the result. The 2d graph of PC1 and PC 2 shows the 3 major clusters.
